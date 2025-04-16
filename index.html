@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pixel Art Scaler with Preview</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #canvas {
+        max-width: 100%;
+        height: auto;
+        image-rendering: pixelated;
+        display: block;
+        margin: auto;
+    }
+
+    .preview-container {
+      text-align: center;
+    }
+    .preview {
+      image-rendering: auto;
+      width: 128px;
+      height: 128px;
+    }
+    
+    input[type="number"] {
+      width: 80px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Pixel Art Scaler</h1>
+    <input type="file" id="fileInput" accept="image/*"><br><br>
+
+    <label>
+      Scale Factor (e.g. 2, 4, 8):
+        <div>
+            <label for="scaleInput">Scale:</label>
+            <input id="scaleInput" type="number" min="1" step="any" value="1" />
+            <span id="mismatchMessage" style="color: red; display: none;"></span>
+        </div>
+    </label>
+
+    <div>
+        <label>Width: <input type="number" id="widthInput" min="1"></label>
+        <label>Height: <input type="number" id="heightInput" min="1"></label>
+    </div>      
+
+    <button onclick="scaleImage()">Scale Image</button>
+    <br><br>
+
+    <div class="preview-container">
+      <p><strong>Preview (blurred like social media):</strong></p>
+      <canvas id="previewCanvas" class="preview" width="128" height="128"></canvas>
+    </div>
+
+    <p><strong>Scaled Pixel Art (crisp):</strong></p>
+
+    <canvas id="canvas"></canvas>
+    <a id="downloadLink" style="display:none;" download="scaled-pixel-art.png">Download Scaled Image</a>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const scaleInput = document.getElementById("scaleInput");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const previewCanvas = document.getElementById("previewCanvas");
+    const previewCtx = previewCanvas.getContext("2d");
+    const downloadLink = document.getElementById("downloadLink");
+    const widthInput = document.getElementById("widthInput");
+    const heightInput = document.getElementById("heightInput");
+
+    let image = new Image();
+
+    scaleInput.addEventListener("input", scaleImage);
+    widthInput.addEventListener("input", scaleImage);
+    heightInput.addEventListener("input", scaleImage);
+
+    // Restore from localStorage if available
+    window.addEventListener("DOMContentLoaded", () => {
+        const savedImage = localStorage.getItem("pixelArtImage");
+        const savedScale = localStorage.getItem("pixelArtScale");
+        const savedWidth = localStorage.getItem("pixelArtWidth");
+        const savedHeight = localStorage.getItem("pixelArtHeight");
+
+        if (savedImage) image.src = savedImage;
+        if (savedScale) scaleInput.value = savedScale;
+        if (savedWidth) widthInput.value = savedWidth;
+        if (savedHeight) heightInput.value = savedHeight;
+
+        image.onload = () => scaleImage();
+    });
+
+    image.onload = () => {
+        widthInput.value = image.width;
+        heightInput.value = image.height;
+        scaleInput.value = 1;
+        scaleImage();
+    };
+
+    image.onerror = () => {
+        console.error("Failed to load image.");
+        alert("Invalid image file. Please upload a valid image.");
+    };
+
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            image.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function scaleImage() {
+        const originalWidth = image.width;
+        const originalHeight = image.height;
+        
+        let scale = parseFloat(scaleInput.value);
+        let width = parseInt(widthInput.value);
+        let height = parseInt(heightInput.value);
+        
+        const active = document.activeElement;
+        
+        if (active === scaleInput) {
+            // Validate scale input
+            if (isNaN(scale) || scale <= 0) {
+                alert("Scale must be a positive number.");
+                scaleInput.value = 1;
+                scale = 1;
+            }
+
+            width = Math.round(originalWidth * scale);
+            height = Math.round(originalHeight * scale);
+            widthInput.value = width;
+            heightInput.value = height;
+        } else if (active === widthInput || active === heightInput) {
+            const aspectRatioOriginal = originalWidth / originalHeight;
+            const aspectRatioNew = width / height;
+        
+            if (aspectRatioOriginal !== aspectRatioNew) {
+                scaleInput.disabled = true;
+                showMismatchMessage(true);
+            } else {
+                scaleInput.disabled = false;
+                showMismatchMessage(false);
+            
+                const newScale = width / originalWidth;
+                scaleInput.value = newScale;
+            }
+        }
+    
+        canvas.width = width;
+        canvas.height = height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = false;
+    
+        try {
+            ctx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, width, height);
+        } catch (error) {
+            console.error("Error drawing image:", error);
+            return;
+        }
+    
+        previewCtx.imageSmoothingEnabled = true;
+        previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        previewCtx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, previewCanvas.width, previewCanvas.height);
+    
+        downloadLink.href = canvas.toDataURL();
+        downloadLink.style.display = "inline-block";
+    
+        if (image.src.startsWith("data:image")) {
+            localStorage.setItem("pixelArtImage", image.src);
+            localStorage.setItem("pixelArtWidth", width);
+            localStorage.setItem("pixelArtHeight", height);
+            localStorage.setItem("pixelArtScale", scaleInput.value);
+        }
+    }
+    
+    function showMismatchMessage(show) {
+        const mismatchMessage = document.getElementById("mismatchMessage");
+        if (show) {
+            mismatchMessage.style.display = "block";
+            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to match the original aspect ratio.";
+        } else {
+            mismatchMessage.style.display = "none";
+        }
+    }
+    
+    function showMismatchMessage(show) {
+        const mismatchMessage = document.getElementById("mismatchMessage");
+        if (show) {
+            mismatchMessage.style.display = "block";
+            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to match the original aspect ratio.";
+        } else {
+            mismatchMessage.style.display = "none";
+        }
+    }
+  </script>
+</body>
+</html>
