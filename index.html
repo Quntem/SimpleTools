@@ -2,25 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pixel Art Scaler with Preview</title>
+  <title>Pixel Art Scaler</title>
   <style>
     body {
       font-family: sans-serif;
       background: #f0f0f0;
-      padding: 20px;
+      margin: 2rem;
     }
+
     .container {
-      max-width: 700px;
       margin: auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     #canvas {
-        max-width: 100%;
+        max-width: 50%;
         height: auto;
-        image-rendering: pixelated;
         display: block;
         margin: auto;
     }
@@ -28,10 +28,10 @@
     .preview-container {
       text-align: center;
     }
+
     .preview {
-      image-rendering: auto;
-      width: 128px;
-      height: 128px;
+      width: 50%;
+      height: auto;
     }
     
     input[type="number"] {
