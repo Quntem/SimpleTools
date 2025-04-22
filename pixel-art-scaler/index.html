@@ -12,12 +12,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <link rel="stylesheet" href="global/css/index.css">
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
   <div class="container">
-    <h1>Pixel Art Scaler</h1>
+    <div style="display: flex; flex-direction: row; gap: 1rem; margin-bottom: 1rem;">
+      <img src="pixel scaler icon.png" alt="Pixel Scaler Icon Logo" class="logo">
+      <h1>Pixel Art Scaler</h1>
+    </div>
+
     <p>Easily scale your pixel art to ensure it looks sharp and vibrant on social media platforms! Upload your image, adjust the scale factor or dimensions, and preview the results instantly.</p>
 
     <div class="file-input-container">
@@ -34,25 +38,29 @@
 
           <p class="label" id="file-label">BROWSE FILE</p>
         </div>
-        <p class="instructions" id="instructions">Press anywhere to start browsing through your files.</p>
-        <p class="instructions" id="instructions2" style="margin-top: 0;">Supported formats: PNG, JPEG, JPG, GIF, WEBP</p>
+        <p class="information" id="information">Press anywhere to start browsing through your files.</p>
+        <p class="information" id="information2" style="margin-top: 0;">Supported formats: PNG, JPEG, JPG, GIF, WEBP</p>
       </div>
     </div>
 
-    <div id="clearButtonContainer" style="display: none; align-items: center; justify-content: center;">
-      <button onclick="clearSaved()" class="clear-saved-img-btn">🗑️ Clear Saved Image</button>
-    </div>
-    
-    <div>
-        <label for="scaleInput">Scale:</label>
-        <input id="scaleInput" type="number" min="1" step="any" value="1" />
-        <span id="mismatchMessage" style="color: red; display: none;"></span>
-    </div>
+    <div style="display: flex; flex-direction: row; margin: 2rem; gap: 3rem;">
+      <canvas id="previewCanvas" class="preview" width="64" height="64"></canvas>
 
-    <div>
-        <label>Width: <input type="number" id="widthInput" min="1"></label>
-        <label>Height: <input type="number" id="heightInput" min="1"></label>
-        <button id="lockAspectRatioBtn" class="lock-btn">🔒 Lock Aspect Ratio</button>
+      <div style="display: flex; flex-direction: column; justify-content: center;">
+        <div id="clearButtonContainer" style="display: none; align-items: center;">
+          <button onclick="clearSaved()" class="clear-saved-img-btn">🗑️ Clear Saved Image</button>
+        </div>
+  
+        <div>
+            <!-- make sure to make the labels above the inputs some time idk -->
+            <label for="scaleInput">SCALE</label>
+            <input id="scaleInput" type="number" min="1" max="50" step="any" value="1" class="scaleInput"/>
+            <span id="mismatchMessage" style="color: red; display: none;"></span>
+            <label>WIDTH<input type="number" id="widthInput" min="1"></label>
+            <label>HEIGHT<input type="number" id="heightInput" min="1"></label>
+            <button id="lockAspectRatioBtn" class="lock-btn">🔒 Lock Aspect Ratio</button>
+        </div>
+      </div>
     </div>
 
     <button onclick="scaleImage()">Scale Image</button>
@@ -60,7 +68,7 @@
 
     <div class="preview-container">
       <p><strong>Preview (blurred like social media):</strong></p>
-      <canvas id="previewCanvas" class="preview" width="128" height="128"></canvas>
+      
     </div>
 
     <p><strong>Scaled Pixel Art (crisp):</strong></p>
@@ -100,8 +108,11 @@
         scaleInput.value = 1;
         scaleImage();
         document.getElementById("file-label").innerHTML = "FILE SELECTED";
-        document.getElementById("instructions").style.display = "none";
-        document.getElementById("instructions2").style.display = "none";
+        document.getElementById("information").innerHTML = "Original Image Dimensions: " + image.naturalWidth + " x " + image.naturalHeight + " (" + (image.naturalWidth * image.naturalHeight) + " px)";
+        const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+        const divisor = gcd(image.naturalWidth, image.naturalHeight);
+        const aspectRatio = `${image.naturalWidth / divisor}:${image.naturalHeight / divisor}`;
+        document.getElementById("information2").innerHTML = "Original Aspect Ratio: " + aspectRatio + " (" + (image.naturalWidth / image.naturalHeight).toFixed(2) + ")";
         document.getElementById("clearButtonContainer").style.display = "flex";
         fileInput.disabled = true;
         updateIconsBasedOnLabel();
@@ -176,6 +187,11 @@
         if (isNaN(scale) || scale < 1) {
           scale = 1;
           scaleInput.value = 1;
+        }
+
+        if (scale > 50) {
+          scale = 50;
+          scaleInput.value = 50;
         }
       
         width = Math.round(originalWidth * scale);
