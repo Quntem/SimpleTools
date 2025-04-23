@@ -104,6 +104,10 @@ h1 {
     box-shadow: 0rem 0rem #c9c9c9ce;
 }
 
+.scaleInputText {
+    font-size: 1rem;
+}
+
 #canvas {
     max-width: 50%;
     height: auto;
@@ -120,7 +124,7 @@ h1 {
 }
 
 input[type="number"] {
-    width: 80px;
+    width: 5rem;
     -moz-appearance: textfield;
     appearance: textfield;
     background-color: #f0f0f0;
@@ -141,6 +145,16 @@ input[type="number"]:active, input[type="number"]:focus {
     border: none !important;
     outline: none !important;
     background-color: #ececec;
+}
+
+input[type="number"]:disabled {
+    background-color: #d8d8d8;
+    cursor: not-allowed;
+}
+
+input[type="number"]:disabled:hover {
+    background-color: #c2c2c2;
+    cursor: not-allowed;
 }
 
 label {

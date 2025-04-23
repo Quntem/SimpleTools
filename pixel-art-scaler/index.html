@@ -51,15 +51,23 @@
           <button onclick="clearSaved()" class="clear-saved-img-btn">🗑️ Clear Saved Image</button>
         </div>
   
-        <div>
-            <!-- make sure to make the labels above the inputs some time idk -->
-            <label for="scaleInput">SCALE</label>
-            <input id="scaleInput" type="number" min="1" max="50" step="any" value="1" class="scaleInput"/>
-            <span id="mismatchMessage" style="color: red; display: none;"></span>
-            <label>WIDTH<input type="number" id="widthInput" min="1"></label>
-            <label>HEIGHT<input type="number" id="heightInput" min="1"></label>
-            <button id="lockAspectRatioBtn" class="lock-btn">🔒 Lock Aspect Ratio</button>
+        <div style="display: flex; flex-direction: row; gap: 1rem;">
+            <div style="display: flex; flex-direction: column;">
+              <label for="scaleInput" class="scaleInputText">SCALE</label>
+              <input id="scaleInput" type="number" min="1" max="50" step="any" value="1" class="scaleInput"/>
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <label class="scaleInputText">WIDTH</label>
+              <input type="number" id="widthInput" min="1">
+            </div>
+            <div style="display: flex; flex-direction: column;">
+              <label class="scaleInputText">HEIGHT</label>
+              <input type="number" id="heightInput" min="1">
+            </div>
+            <button id="lockAspectRatioBtn" class="clear-saved-img-btn" style="margin-top: auto; margin-bottom: 0.25rem; font-size: 1rem;">🔒 Lock Aspect Ratio</button>
         </div>
+
+        <span id="mismatchMessage" style="color: red; display: none; margin-top: .75rem; font-size: 1rem;"></span>
       </div>
     </div>
 
@@ -94,7 +102,6 @@
     widthInput.addEventListener("input", scaleImage);
     heightInput.addEventListener("input", scaleImage);
 
-    // Set the image's onload handler first
     image.onload = () => {
         if (image.complete && image.naturalWidth && image.naturalHeight) {
             widthInput.value = image.naturalWidth;
@@ -114,11 +121,9 @@
         const aspectRatio = `${image.naturalWidth / divisor}:${image.naturalHeight / divisor}`;
         document.getElementById("information2").innerHTML = "Original Aspect Ratio: " + aspectRatio + " (" + (image.naturalWidth / image.naturalHeight).toFixed(2) + ")";
         document.getElementById("clearButtonContainer").style.display = "flex";
-        fileInput.disabled = true;
         updateIconsBasedOnLabel();
     };
 
-    // Restore from localStorage
     window.addEventListener("DOMContentLoaded", () => {
         const savedImage = localStorage.getItem("pixelArtImage");
         const savedScale = localStorage.getItem("pixelArtScale");
@@ -132,10 +137,9 @@
         if (savedImage) {
           image.src = savedImage;
           document.getElementById("clearButtonContainer").style.display = "flex";
-          fileInput.disabled = true;
         }
 
-        updateIconsBasedOnLabel(); // 👈 on load
+        updateIconsBasedOnLabel();
     });
 
     image.onerror = () => {
@@ -154,7 +158,7 @@
         reader.readAsDataURL(file);
     });
 
-    let aspectRatioLocked = true; // Default locked
+    let aspectRatioLocked = true;
 
     const lockAspectRatioBtn = document.getElementById("lockAspectRatioBtn");
     updateLockButtonText();
@@ -162,13 +166,13 @@
     lockAspectRatioBtn.addEventListener("click", () => {
         aspectRatioLocked = !aspectRatioLocked;
         updateLockButtonText();
-        scaleImage(); // Recalculate with new lock state
+        scaleImage();
     });
 
     function updateLockButtonText() {
         lockAspectRatioBtn.textContent = aspectRatioLocked
-            ? "🔓 Unlock Aspect Ratio"
-            : "🔒 Lock Aspect Ratio";
+            ? "🔓"
+            : "🔒";
     
         lockAspectRatioBtn.classList.toggle("locked", aspectRatioLocked);
     }
@@ -176,20 +180,17 @@
     function scaleImage() {
       const originalWidth = image.naturalWidth;
       const originalHeight = image.naturalHeight;
-        
       let scale = parseFloat(scaleInput.value);
       let width = parseInt(widthInput.value);
       let height = parseInt(heightInput.value);
-        
+
       const active = document.activeElement;
-        
+
       if (active === scaleInput) {
         if (isNaN(scale) || scale < 1) {
           scale = 1;
           scaleInput.value = 1;
-        }
-
-        if (scale > 50) {
+        } else if (scale > 50) {
           scale = 50;
           scaleInput.value = 50;
         }
@@ -203,6 +204,12 @@
         scaleInput.disabled = false;
       
       } else if (active === widthInput || active === heightInput) {
+        // Enforce limits
+        width = Math.max(originalWidth, Math.min(originalWidth * 50, width));
+        height = Math.max(originalHeight, Math.min(originalHeight * 50, height));
+        widthInput.value = width;
+        heightInput.value = height;
+      
         if (aspectRatioLocked) {
           if (active === widthInput) {
             height = Math.round(width / (originalWidth / originalHeight));
@@ -221,17 +228,12 @@
           const scaleX = width / originalWidth;
           const scaleY = height / originalHeight;
         
-          if (
-            Number.isInteger(scaleX) &&
-            Number.isInteger(scaleY) &&
-            scaleX === scaleY
-          ) {
+          if (Number.isInteger(scaleX) && Number.isInteger(scaleY) && scaleX === scaleY) {
             scale = scaleX;
             scaleInput.value = scale;
             scaleInput.disabled = false;
             showMismatchMessage(false);
           } else {
-            scaleInput.value = "mixed";
             scaleInput.disabled = true;
             showMismatchMessage(true);
           }
@@ -245,7 +247,7 @@
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, width, height);
     
-      // Draw preview (blurred like social media)
+      // Draw preview
       previewCtx.imageSmoothingEnabled = true;
       previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
       previewCtx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, previewCanvas.width, previewCanvas.height);
@@ -260,23 +262,12 @@
         localStorage.setItem("pixelArtScale", scaleInput.value);
       }
     }
-
     
     function showMismatchMessage(show) {
         const mismatchMessage = document.getElementById("mismatchMessage");
         if (show) {
             mismatchMessage.style.display = "block";
-            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to match the original aspect ratio.";
-        } else {
-            mismatchMessage.style.display = "none";
-        }
-    }
-    
-    function showMismatchMessage(show) {
-        const mismatchMessage = document.getElementById("mismatchMessage");
-        if (show) {
-            mismatchMessage.style.display = "block";
-            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to match the original aspect ratio.";
+            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to be able to use scaling.";
         } else {
             mismatchMessage.style.display = "none";
         }
@@ -289,7 +280,6 @@
       localStorage.removeItem('pixelArtHeight');
 
       document.getElementById("clearButtonContainer").style.display = "none";
-      fileInput.disabled = false;
       location.reload();
     }
 
@@ -306,18 +296,6 @@
         fileIcon.style.display = "none";
       }
     }
-
-
-    // function prepareDownload(originalFileName, dataUrl) {
-    //   const link = document.getElementById('downloadLink');
-    //   const baseName = originalFileName.split('.').slice(0, -1).join('.');
-    //   const extension = originalFileName.split('.').pop();
-    //   const newFileName = `SimpleTools_${baseName}.${extension}`;
-      
-    //   link.href = dataUrl; // dataUrl should be a valid data URI or object URL
-    //   link.download = newFileName;
-    //   link.style.display = 'inline'; // show the link
-    // }
   </script>
 </body>
 </html>
