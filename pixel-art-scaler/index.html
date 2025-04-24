@@ -5,18 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="SimpleTools: Pixel Art Scaler - Scale your pixel art images easily and download them.">
 
+  <link rel="icon" href="pixel scaler icon.png" type="image/png">
   <title>SimpleTools | Pixel Art Scaler</title>
+  <meta name="description" content="Scale your pixel art easily with SimpleTools' Pixel Art Scaler. Maintain crispness and aspect ratio. Supports PNG, JPEG, GIF, and WEBP.">
+  <meta name="keywords" content="Pixel Art, Scaler, Image Resize, Pixel Tool, SimpleTools, Scale PNG, Retro Art, Game Art Tools">
+  <meta name="author" content="SimpleTools">
+  <meta name="robots" content="index, follow">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- <script src="https://unpkg.com/lucide@latest"></script> -->
 
   <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
   <div class="container">
+    <!-- Actual Stuff -->
     <div style="display: flex; flex-direction: row; gap: 1rem; margin-bottom: 1rem;">
       <img src="pixel scaler icon.png" alt="Pixel Scaler Icon Logo" class="logo">
       <h1>Pixel Art Scaler</h1>
@@ -43,12 +50,18 @@
       </div>
     </div>
 
-    <div style="display: flex; flex-direction: row; margin: 2rem; gap: 3rem;">
+    <div id="actions" style="display: none; flex-direction: row; margin: 2rem; gap: 3rem;">
       <canvas id="previewCanvas" class="preview" width="64" height="64"></canvas>
 
       <div style="display: flex; flex-direction: column; justify-content: center;">
-        <div id="clearButtonContainer" style="display: none; align-items: center;">
-          <button onclick="clearSaved()" class="clear-saved-img-btn">🗑️ Clear Saved Image</button>
+        <div style="display: flex; flex-direction: row; gap: 1rem">
+          <div id="clearButtonContainer" style="display: none; align-items: center;">
+            <button onclick="clearSaved()" class="clear-saved-img-btn">🗑️ Clear Saved Image</button>
+          </div>
+  
+          <a id="downloadLink" style="display:none;" download="SimpleTools [] Pixel Art Scaler [] (Name of original image name)" class="clearButtonContainer">
+            <button class="clear-saved-img-btn">🔽 Download Scaled Image</button>
+          </a>
         </div>
   
         <div style="display: flex; flex-direction: row; gap: 1rem;">
@@ -64,237 +77,279 @@
               <label class="scaleInputText">HEIGHT</label>
               <input type="number" id="heightInput" min="1">
             </div>
-            <button id="lockAspectRatioBtn" class="clear-saved-img-btn" style="margin-top: auto; margin-bottom: 0.25rem; font-size: 1rem;">🔒 Lock Aspect Ratio</button>
+            <button id="lockAspectRatioBtn" class="clear-saved-img-btn" style="margin-top: auto; margin-bottom: 0.25rem; font-size: 1rem;">🔒</button>
         </div>
 
         <span id="mismatchMessage" style="color: red; display: none; margin-top: .75rem; font-size: 1rem;"></span>
       </div>
+
+      <canvas id="canvas"></canvas>
     </div>
 
-    <button onclick="scaleImage()">Scale Image</button>
-    <br><br>
+    <!-- some guides and stuff -->
 
-    <div class="preview-container">
-      <p><strong>Preview (blurred like social media):</strong></p>
+    <div class="guides">
+      <div style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h2>How to Use:</h2>
+        <ol>
+          <li>Upload your pixel art image.</li>
+          <li>Adjust the scale factor or dimensions as needed.</li>
+          <li>Preview the scaled image in real-time.</li>
+          <li>Download the scaled image when you're satisfied.</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h2>What is Pixel Art Scaler?</h2>
+        <p>
+          Pixel Art Scaler is a web application by SimpleTools to easily scale your pixel art to ensure it looks sharp and vibrant on social media platforms such as Discord, Twitter, and many more.
+          It allows you to upload your pixel art image, adjust the scale factor or dimensions, and preview the results instantly.
+          The tool is designed to maintain the crispness of pixel art while providing a user-friendly interface for scaling images.
+        </p>
+      </div>
       
+      <div style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h2>What formats do we support?</h2>
+        <p>We support PNG, JPEG, JPG, GIF, WEBP.
+          Our server side won't actually check if your image uplaoded is one of those types, but other types may result in an error when uploading.</p>
+      </div>
     </div>
-
-    <p><strong>Scaled Pixel Art (crisp):</strong></p>
-
-    <canvas id="canvas"></canvas>
-    <a id="downloadLink" style="display:none;" download="SimpleTools_(Original File Name)">Download Scaled Image</a>
   </div>
 
   <script>
-    const fileInput = document.getElementById("fileInput");
-    const scaleInput = document.getElementById("scaleInput");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const previewCanvas = document.getElementById("previewCanvas");
-    const previewCtx = previewCanvas.getContext("2d");
-    const downloadLink = document.getElementById("downloadLink");
-    const widthInput = document.getElementById("widthInput");
-    const heightInput = document.getElementById("heightInput");
+    // elements
+    const elements = {
+      fileInput: document.getElementById("fileInput"),
+      scaleInput: document.getElementById("scaleInput"),
+      widthInput: document.getElementById("widthInput"),
+      heightInput: document.getElementById("heightInput"),
+      canvas: document.getElementById("canvas"),
+      previewCanvas: document.getElementById("previewCanvas"),
+      downloadLink: document.getElementById("downloadLink"),
+      lockBtn: document.getElementById("lockAspectRatioBtn"),
+      clearBtnContainer: document.getElementById("clearButtonContainer"),
+      fileLabel: document.getElementById("file-label"),
+      info: document.getElementById("information"),
+      info2: document.getElementById("information2"),
+      mismatchMessage: document.getElementById("mismatchMessage"),
+      folderIcon: document.getElementById("folder-icon"),
+      fileIcon: document.getElementById("file-icon"),
+    };
+
+    const ctx = elements.canvas.getContext("2d");
+    const previewCtx = elements.previewCanvas.getContext("2d");
 
     let image = new Image();
+    let aspectRatioLocked = true;
+    let fileName = "pixel-art-scaler.png"; // default file name
 
-    scaleInput.addEventListener("input", scaleImage);
-    widthInput.addEventListener("input", scaleImage);
-    heightInput.addEventListener("input", scaleImage);
-
-    image.onload = () => {
-        if (image.complete && image.naturalWidth && image.naturalHeight) {
-            widthInput.value = image.naturalWidth;
-            heightInput.value = image.naturalHeight;
-            document.getElementById("previewCanvas").width = image.naturalWidth;
-            document.getElementById("previewCanvas").height = image.naturalHeight;
-        } else {
-            console.error("Image dimensions are not available yet.");
-        }
-      
-        scaleInput.value = 1;
-        scaleImage();
-        document.getElementById("file-label").innerHTML = "FILE SELECTED";
-        document.getElementById("information").innerHTML = "Original Image Dimensions: " + image.naturalWidth + " x " + image.naturalHeight + " (" + (image.naturalWidth * image.naturalHeight) + " px)";
-        const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
-        const divisor = gcd(image.naturalWidth, image.naturalHeight);
-        const aspectRatio = `${image.naturalWidth / divisor}:${image.naturalHeight / divisor}`;
-        document.getElementById("information2").innerHTML = "Original Aspect Ratio: " + aspectRatio + " (" + (image.naturalWidth / image.naturalHeight).toFixed(2) + ")";
-        document.getElementById("clearButtonContainer").style.display = "flex";
-        updateIconsBasedOnLabel();
-    };
-
-    window.addEventListener("DOMContentLoaded", () => {
-        const savedImage = localStorage.getItem("pixelArtImage");
-        const savedScale = localStorage.getItem("pixelArtScale");
-        const savedWidth = localStorage.getItem("pixelArtWidth");
-        const savedHeight = localStorage.getItem("pixelArtHeight");
-    
-        if (savedScale) scaleInput.value = savedScale;
-        if (savedWidth) widthInput.value = savedWidth;
-        if (savedHeight) heightInput.value = savedHeight;
-    
-        if (savedImage) {
-          image.src = savedImage;
-          document.getElementById("clearButtonContainer").style.display = "flex";
-        }
-
-        updateIconsBasedOnLabel();
-    });
-
-    image.onerror = () => {
-        console.error("Failed to load image.");
-        document.getElementById("file-label").innerHTML = "IMAGE FAILED TO LOAD";
-        updateIconsBasedOnLabel();
-    };
+    // initial setup
+    window.addEventListener("DOMContentLoaded", loadSavedData);
+    elements.fileInput.addEventListener("change", handleFileInput);
+    elements.scaleInput.addEventListener("input", scaleImage);
+    elements.widthInput.addEventListener("input", scaleImage);
+    elements.heightInput.addEventListener("input", scaleImage);
+    elements.lockBtn.addEventListener("click", toggleAspectRatioLock);
 
     fileInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            image.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+      const file = event.target.files[0];
+      if (file) {
+          fileName = file.name;
+          localStorage.setItem("pixelArtFileName", fileName);
+      }
     });
 
-    let aspectRatioLocked = true;
+    image.onload = onImageLoad;
+    image.onerror = onImageError;
 
-    const lockAspectRatioBtn = document.getElementById("lockAspectRatioBtn");
-    updateLockButtonText();
+    // functions
+    function loadSavedData() {
+      const savedImage = localStorage.getItem("pixelArtImage");
+      const savedScale = localStorage.getItem("pixelArtScale");
+      const savedWidth = localStorage.getItem("pixelArtWidth");
+      const savedHeight = localStorage.getItem("pixelArtHeight");
+      const savedFileName = localStorage.getItem("pixelArtFileName");
 
-    lockAspectRatioBtn.addEventListener("click", () => {
-        aspectRatioLocked = !aspectRatioLocked;
-        updateLockButtonText();
-        scaleImage();
-    });
+      if (savedFileName) fileName = savedFileName;
+
+      if (savedScale) elements.scaleInput.value = savedScale;
+      if (savedWidth) elements.widthInput.value = savedWidth;
+      if (savedHeight) elements.heightInput.value = savedHeight;
+      if (savedImage) {
+        image.src = savedImage;
+        elements.clearBtnContainer.style.display = "flex";
+      }
+    
+      updateIconsBasedOnLabel();
+    }
+
+    function onImageLoad() {
+      if (!image.complete || !image.naturalWidth || !image.naturalHeight) {
+        return console.error("Image dimensions not available.");
+      }
+    
+      const { naturalWidth: w, naturalHeight: h } = image;
+      elements.widthInput.value = w;
+      elements.heightInput.value = h;
+      elements.previewCanvas.width = w;
+      elements.previewCanvas.height = h;
+      elements.scaleInput.value = 1;
+    
+      updateInfoDisplay(w, h);
+      elements.clearBtnContainer.style.display = "flex";
+      updateIconsBasedOnLabel();
+      elements.actions = document.getElementById("actions");
+      elements.actions.style.display = "flex"; // <- SHOW when image is loaded
+      scaleImage();
+    }
+
+    function onImageError() {
+      console.error("Failed to load image.");
+      elements.fileLabel.textContent = "IMAGE FAILED TO LOAD";
+      updateIconsBasedOnLabel();
+    }
+
+    function handleFileInput(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+    
+      const reader = new FileReader();
+      reader.onload = (ev) => (image.src = ev.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    function toggleAspectRatioLock() {
+      aspectRatioLocked = !aspectRatioLocked;
+      updateLockButtonText();
+      scaleImage();
+    }
 
     function updateLockButtonText() {
-        lockAspectRatioBtn.textContent = aspectRatioLocked
-            ? "🔓"
-            : "🔒";
+      elements.lockBtn.textContent = aspectRatioLocked ? "🔒" : "🔓";
+      elements.lockBtn.classList.toggle("locked", aspectRatioLocked);
+    }
+
+    function updateInfoDisplay(width, height) {
+      const totalPx = width * height;
+      const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+      const divisor = gcd(width, height);
+      const ratio = `${width / divisor}:${height / divisor}`;
     
-        lockAspectRatioBtn.classList.toggle("locked", aspectRatioLocked);
+      elements.fileLabel.textContent = "FILE SELECTED";
+      elements.info.textContent = `Original Image Dimensions: ${width} x ${height} (${totalPx} px)`;
+      elements.info2.textContent = `Original Aspect Ratio: ${ratio} (${(width / height).toFixed(2)})`;
     }
 
     function scaleImage() {
-      const originalWidth = image.naturalWidth;
-      const originalHeight = image.naturalHeight;
-      let scale = parseFloat(scaleInput.value);
-      let width = parseInt(widthInput.value);
-      let height = parseInt(heightInput.value);
-
+      const { naturalWidth: ow, naturalHeight: oh } = image;
+      let scale = parseFloat(elements.scaleInput.value);
+      let width = parseInt(elements.widthInput.value);
+      let height = parseInt(elements.heightInput.value);
       const active = document.activeElement;
-
-      if (active === scaleInput) {
-        if (isNaN(scale) || scale < 1) {
-          scale = 1;
-          scaleInput.value = 1;
-        } else if (scale > 50) {
-          scale = 50;
-          scaleInput.value = 50;
-        }
-      
-        width = Math.round(originalWidth * scale);
-        height = Math.round(originalHeight * scale);
-        widthInput.value = width;
-        heightInput.value = height;
-      
+    
+      if (active === elements.scaleInput) {
+        scale = clamp(scale, 1, 50);
+        elements.scaleInput.value = scale;
+        width = Math.round(ow * scale);
+        height = Math.round(oh * scale);
+        elements.widthInput.value = width;
+        elements.heightInput.value = height;
+        elements.scaleInput.disabled = false;
         showMismatchMessage(false);
-        scaleInput.disabled = false;
-      
-      } else if (active === widthInput || active === heightInput) {
-        // Enforce limits
-        width = Math.max(originalWidth, Math.min(originalWidth * 50, width));
-        height = Math.max(originalHeight, Math.min(originalHeight * 50, height));
-        widthInput.value = width;
-        heightInput.value = height;
+      } else if (active === elements.widthInput || active === elements.heightInput) {
+        width = clamp(width, ow, ow * 50);
+        height = clamp(height, oh, oh * 50);
+        elements.widthInput.value = width;
+        elements.heightInput.value = height;
       
         if (aspectRatioLocked) {
-          if (active === widthInput) {
-            height = Math.round(width / (originalWidth / originalHeight));
-            heightInput.value = height;
+          if (active === elements.widthInput) {
+            height = Math.round(width / (ow / oh));
+            elements.heightInput.value = height;
           } else {
-            width = Math.round(height * (originalWidth / originalHeight));
-            widthInput.value = width;
+            width = Math.round(height * (ow / oh));
+            elements.widthInput.value = width;
           }
-        
-          scale = width / originalWidth;
-          scaleInput.value = scale;
-          scaleInput.disabled = false;
+          scale = width / ow;
+          elements.scaleInput.value = scale;
+          elements.scaleInput.disabled = false;
           showMismatchMessage(false);
-        
         } else {
-          const scaleX = width / originalWidth;
-          const scaleY = height / originalHeight;
+          const scaleX = width / ow;
+          const scaleY = height / oh;
         
-          if (Number.isInteger(scaleX) && Number.isInteger(scaleY) && scaleX === scaleY) {
+          if (Number.isInteger(scaleX) && scaleX === scaleY) {
             scale = scaleX;
-            scaleInput.value = scale;
-            scaleInput.disabled = false;
+            elements.scaleInput.value = scale;
+            elements.scaleInput.disabled = false;
             showMismatchMessage(false);
           } else {
-            scaleInput.disabled = true;
+            elements.scaleInput.disabled = true;
             showMismatchMessage(true);
           }
         }
       }
     
-      // Draw scaled image
-      canvas.width = width;
-      canvas.height = height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCanvas(width, height, ow, oh);
+      drawPreview(ow, oh);
+      updateDownloadLink();
+      saveToLocalStorage(scale, width, height);
+    }
+
+    function drawCanvas(w, h, ow, oh) {
+      elements.canvas.width = w;
+      elements.canvas.height = h;
+      ctx.clearRect(0, 0, w, h);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, width, height);
-    
-      // Draw preview
+      ctx.drawImage(image, 0, 0, ow, oh, 0, 0, w, h);
+    }
+
+    function drawPreview(ow, oh) {
+      previewCtx.clearRect(0, 0, elements.previewCanvas.width, elements.previewCanvas.height);
       previewCtx.imageSmoothingEnabled = true;
-      previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-      previewCtx.drawImage(image, 0, 0, originalWidth, originalHeight, 0, 0, previewCanvas.width, previewCanvas.height);
-    
-      downloadLink.href = canvas.toDataURL();
-      downloadLink.style.display = "inline-block";
-    
-      if (image.src.startsWith("data:image")) {
-        localStorage.setItem("pixelArtImage", image.src);
-        localStorage.setItem("pixelArtWidth", width);
-        localStorage.setItem("pixelArtHeight", height);
-        localStorage.setItem("pixelArtScale", scaleInput.value);
+      previewCtx.drawImage(image, 0, 0, ow, oh, 0, 0, elements.previewCanvas.width, elements.previewCanvas.height);
+    }
+
+    function updateDownloadLink() {
+      elements.downloadLink.href = elements.canvas.toDataURL();
+      elements.downloadLink.style.display = "inline-block";
+      elements.downloadLink.download = 'SimpleTools [] Pixel Art Scaler [] ' + fileName;
+    }
+
+    function showMismatchMessage(show) {
+      elements.mismatchMessage.style.display = show ? "block" : "none";
+      if (show) {
+        elements.mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to use scaling.";
       }
     }
-    
-    function showMismatchMessage(show) {
-        const mismatchMessage = document.getElementById("mismatchMessage");
-        if (show) {
-            mismatchMessage.style.display = "block";
-            mismatchMessage.textContent = "Aspect ratio mismatch! Adjust width and height to be able to use scaling.";
-        } else {
-            mismatchMessage.style.display = "none";
-        }
+
+    function saveToLocalStorage(scale, width, height) {
+      if (image.src.startsWith("data:image")) {
+        localStorage.setItem("pixelArtImage", image.src);
+        localStorage.setItem("pixelArtScale", scale);
+        localStorage.setItem("pixelArtWidth", width);
+        localStorage.setItem("pixelArtHeight", height);
+      }
     }
 
-    function clearSaved() {
-      localStorage.removeItem('pixelArtImage');
-      localStorage.removeItem('pixelArtScale');
-      localStorage.removeItem('pixelArtWidth');
-      localStorage.removeItem('pixelArtHeight');
-
-      document.getElementById("clearButtonContainer").style.display = "none";
-      location.reload();
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
     }
 
     function updateIconsBasedOnLabel() {
-      const labelText = document.getElementById("file-label").textContent.trim();
-      const folderIcon = document.getElementById("folder-icon");
-      const fileIcon = document.getElementById("file-icon");
+      const selected = elements.fileLabel.textContent.trim() === "FILE SELECTED";
+      elements.folderIcon.style.display = selected ? "none" : "inline";
+      elements.fileIcon.style.display = selected ? "inline" : "none";
+    }
 
-      if (labelText === "FILE SELECTED") {
-        folderIcon.style.display = "none";
-        fileIcon.style.display = "inline";
-      } else {
-        folderIcon.style.display = "inline";
-        fileIcon.style.display = "none";
-      }
+    function clearSaved() {
+      localStorage.removeItem("pixelArtImage");
+      localStorage.removeItem("pixelArtScale");
+      localStorage.removeItem("pixelArtWidth");
+      localStorage.removeItem("pixelArtHeight");
+      localStorage.removeItem("pixelArtFileName");
+      elements.clearBtnContainer.style.display = "none";
+      location.reload();
     }
   </script>
 </body>
