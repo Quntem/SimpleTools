@@ -1,4 +1,73 @@
+/* headContainer */
+
 .headContainer {
-    height: 100dvh;
+    padding: 6rem;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
     text-align: center;
+
+    background: linear-gradient(to bottom, #DA5658, #FFF);
 }
+
+    /* Sub - Elements */
+
+    .headContainer img {
+        margin: 0.5rem;
+    }
+
+    /* Sub - Other Divs */
+
+    .headContainer-title {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        margin-left: 1.5rem;
+
+        text-align: left;
+    }
+
+        /* Sub - Other Divs - Elements */
+
+        .headContainer-title h1 {
+            margin: 0;
+
+            font-size: 3rem;
+        }
+
+        .headContainer-title h2 {
+            margin: 0;
+
+            font-size: 1.5rem;
+        }
+
+/* toolsContainer */
+
+.toolsContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 4rem;
+}
+
+/* toolCard */
+
+.toolCard {
+    padding: 2rem;
+
+    background-color: #F6D5D6;
+
+    border-radius: 0.5rem;
+
+    box-shadow: inset 0 0 0.5rem rgba(246, 213, 214, 0.2);
+}
+
+    /* Sub - Elements */
+
+    .toolCard h1, h2, h3, h4, h5, h6, p {
+        margin: 0;
+    }
