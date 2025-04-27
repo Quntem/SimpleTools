@@ -16,7 +16,7 @@
     /* Sub - Elements */
 
     .headContainer img {
-        margin: 0.5rem;
+        margin-right: clamp(2rem, 5vw, 2rem);
     }
 
     /* Sub - Other Divs */
@@ -26,8 +26,6 @@
         flex-direction: column;
         justify-content: center;
 
-        margin-left: 1.5rem;
-
         text-align: left;
     }
 
@@ -36,13 +34,15 @@
         .headContainer-title h1 {
             margin: 0;
 
-            font-size: 3rem;
+            font-size: clamp(2rem, 5vw, 3rem);
         }
 
         .headContainer-title h2 {
             margin: 0;
 
-            font-size: 1.5rem;
+            margin-top: clamp(0.25rem, 0vw, 1rem);
+
+            font-size: clamp(1rem, 1.5vw, 1.6rem);
         }
 
 /* toolsContainer */
@@ -61,19 +61,22 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        gap: clamp(0.75rem, 1vw, 2rem);
+        margin-top: 2rem;
+        margin-bottom: 2rem;
     }
 
     .toolsContainer-icon {
-        height: 3rem;
-        width: 3rem;
+        height: clamp(2.5rem, 3vw, 3rem);
+        width: auto;
     }
 
 /* pas-title */
 
 .pas-title {
     font-weight: 500;
-    font-size: 3rem;
+    font-size: clamp(2.5rem, 3vw, 3rem);
+    margin: 0;
 }
 
 /* toolCard */
@@ -101,27 +104,26 @@
 
     .toolCard button {
         margin-top: 2rem;
-
-        padding: 1.5rem;
-
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-
-        font-size: 1.75rem;
+    
+        padding: clamp(0.75rem, 2vw, 1.5rem);
+        padding-top: clamp(0.25rem, 1vw, 0.5rem);
+        padding-bottom: clamp(0.25rem, 1vw, 0.5rem);
+    
+        font-size: clamp(1.25rem, 4vw, 1.75rem);
         font-weight: 700;
-
+    
         background-color: #e4e4e4;
-
+    
         text-transform: uppercase;
-
+    
         cursor: pointer;
-
-        border-radius: 12px;
-
+    
+        border-radius: clamp(8px, 2vw, 12px);
+    
         border: 1px solid #d4d4d4;
-
+    
         box-shadow: 0.25rem 0.25rem 0px #d4d4d4;
-
+    
         transition: all 100ms ease-out;
     }
 
@@ -153,8 +155,37 @@
     }
 
 @media screen and (max-width: 480px) {
+    .headContainer-title h2 {
+        display: none;
+    }
+
+    .headContainer img {
+        margin-right: 0.75rem;
+    }
+
     .toolCard {
-        margin-left: 5vw;
-        margin-right: 5vw;
+        margin-left: 5dvw;
+        margin-right: 5dvw;
+    }
+}
+
+@media screen and (max-width: 310px) {
+    .headContainer-title h2 {
+        display: none;
+    }
+
+    .headContainer-title h1 {
+        display: none;
+    }
+
+    .headContainer img {
+        margin: 0;
+
+        height: 4rem !important;
+    }
+
+    .toolCard {
+        margin-left: 5dvw;
+        margin-right: 5dvw;
     }
 }

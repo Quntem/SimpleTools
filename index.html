@@ -27,7 +27,7 @@
 </head>
 <body>
     <div class="headContainer">
-        <img src="global/images/logo.png" alt="SimpleTools Logo" height="88" width="88">
+        <img src="global/images/logo.png" alt="SimpleTools Logo" height="88" width="auto">
         <div class="headContainer-title">
             <h1>SimpleTools</h1>
             <h2>Use a collection of simple tools by Quntem.</h2>
@@ -41,7 +41,7 @@
 
         <div class="toolCard">
             <img src="global/images/pixel art scaler preview.png" alt="Screenshot of the Pixel Art Scaler tool." width="100%" height="auto" class="toolCard-image">
-            <p>
+            <p class="toolCard-description">
                 Easily scale your pixel art to ensure it looks sharp and vibrant on social media platforms!
             </p>
             <a href="pixel-art-scaler/index.html">
@@ -49,4 +49,71 @@
             </a>
         </div>
     </div>
+
+    <script>
+        function matchLogoToTitleHeight() {
+            const logo = document.querySelector('.headContainer img');
+            const title = document.querySelector('.headContainer-title');
+    
+            if (logo && title) {
+                const titleHeight = title.offsetHeight;
+    
+                if (titleHeight > 0) {
+                    logo.style.height = titleHeight + 'px';
+                } else if (window.innerWidth <= 310) {
+                    logo.style.height = '4rem';
+                } else {
+                    logo.style.height = '88px'; // default height
+                }
+            }
+        }
+    
+        function shorternPAS() {
+            const pasTitle = document.querySelector('.pas-title');
+            if (window.innerWidth <= 310) {
+                if (pasTitle) {
+                    pasTitle.textContent = 'PAS';
+                }
+            } else {
+                if (pasTitle) {
+                    pasTitle.textContent = 'Pixel Art Scaler';
+                }
+            }
+        }
+    
+        function truncateDescription() {
+            const description = document.querySelector('.toolCard-description');
+            if (description) {
+                const fullText = 'Easily scale your pixel art to ensure it looks sharp and vibrant on social media platforms!';
+
+                let maxLength = fullText.length; // Default to full length
+
+                if (window.innerWidth <= 480) {
+                    // Dynamic scaling between 0px and 480px
+                    // At 480px -> 86 chars, at 0px -> smaller number (~30 chars)
+                    const minChars = 0;
+                    const maxChars = 86;
+                    const width = Math.max(window.innerWidth, 1); // Prevent divide by zero
+                    maxLength = Math.floor((width / 480) * (maxChars - minChars) + minChars);
+                }
+            
+                if (fullText.length > maxLength) {
+                    description.textContent = fullText.slice(0, maxLength).trim() + '...';
+                } else {
+                    description.textContent = fullText;
+                }
+            }
+        }
+    
+        window.addEventListener('load', () => {
+            matchLogoToTitleHeight();
+            shorternPAS();
+            truncateDescription();
+        });
+        window.addEventListener('resize', () => {
+            matchLogoToTitleHeight();
+            shorternPAS();
+            truncateDescription();
+        });
+    </script>    
 </body>
