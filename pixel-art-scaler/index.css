@@ -4,14 +4,66 @@ body {
     font-size: 1.2rem;
     text-rendering: optimizeLegibility;
     background: #f0f0f0;
-    margin: 2rem 6vw;
+    margin: 0;
 }
+
+.headContainer {
+    padding: 6rem;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    background: linear-gradient(to bottom, #DA5658, #f0f0f0);
+
+    font-family: 'Figtree', sans-serif;
+}
+
+    /* Sub - Elements */
+
+    .headContainer img {
+        margin: 0.5rem;
+    }
+
+    /* Sub - Other Divs */
+
+    .headContainer-title {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        margin-left: 1.5rem;
+
+        text-align: left; 
+    }
+
+        /* Sub - Other Divs - Elements */
+
+        .headContainer-title h1 {
+            margin: 0;
+
+            font-size: 3rem;
+
+            font-weight: 700;
+        }
+
+        .headContainer-title h2 {
+            margin: 0;
+
+            font-size: 1.5rem;
+
+            font-weight: 600;
+        }
 
 /* Containers */
 .container {
     margin: auto;
     background: white;
     padding: 3.5rem;
+    margin: 2rem 6vw;
 }
 
 .preview-container {

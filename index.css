@@ -79,8 +79,8 @@
 /* toolCard */
 
 .toolCard {
-    margin-left: 30dvw;
-    margin-right: 30dvw;
+    margin-left: 33dvw;
+    margin-right: 33dvw;
 
     padding: 2rem;
 
@@ -122,13 +122,13 @@
 
         box-shadow: 0.25rem 0.25rem 0px #d4d4d4;
 
-        transition: all 25ms ease-out;
+        transition: all 100ms ease-out;
     }
 
     .toolCard button:hover {
         background-color: #dddddd;
 
-        transition: all 25ms ease-in;
+        transition: all 100ms ease-in;
     }
 
     .toolCard button:active {
@@ -136,7 +136,9 @@
 
         transform: translate(0.25rem, 0.25rem);
 
-        box-shadow: 0px 0px 0px #d4d4d4;
+        box-shadow: 0rem 0rem #d4d4d4;
+
+        transition: all 100ms ease-out;
     }
 
     /* Sub - Other Divs */
