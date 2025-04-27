@@ -151,3 +151,10 @@
 
         border-radius: 12px;
     }
+
+@media screen and (max-width: 480px) {
+    .toolCard {
+        margin-left: 5vw;
+        margin-right: 5vw;
+    }
+}
