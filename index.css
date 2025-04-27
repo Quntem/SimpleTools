@@ -1,3 +1,9 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
 /* headContainer */
 
 .headContainer {
@@ -26,7 +32,7 @@
         flex-direction: column;
         justify-content: center;
 
-        margin-left: 1.5rem;
+        margin-left: 2rem;
 
         text-align: left;
     }
@@ -45,109 +51,19 @@
             font-size: 1.5rem;
         }
 
-/* toolsContainer */
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            background: transparent;
+        }
 
-.toolsContainer {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-
+.countdown {
     text-align: center;
+    margin-top: 4rem;
+    font-size: 6rem;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the countdown text */
 }
-
-    /* Sub - Other Divs */
-
-    .toolsContainer-iconContainer-PAS {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-    }
-
-    .toolsContainer-icon {
-        height: 3rem;
-        width: 3rem;
-    }
-
-/* pas-title */
-
-.pas-title {
-    font-weight: 500;
-    font-size: 3rem;
-}
-
-/* toolCard */
-
-.toolCard {
-    margin-left: 33dvw;
-    margin-right: 33dvw;
-
-    padding: 2rem;
-
-    background-color: #eeeeee;
-
-    border: 1.5px solid #e4e4e4;
-
-    border-radius: 16px;
-}
-
-    /* Sub - Elements */
-
-    .toolCard p {
-        margin: 0;
-
-        font-size: 1.2rem;
-    }
-
-    .toolCard button {
-        margin-top: 2rem;
-
-        padding: 1.5rem;
-
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-
-        font-size: 1.75rem;
-        font-weight: 700;
-
-        background-color: #e4e4e4;
-
-        text-transform: uppercase;
-
-        cursor: pointer;
-
-        border-radius: 12px;
-
-        border: 1px solid #d4d4d4;
-
-        box-shadow: 0.25rem 0.25rem 0px #d4d4d4;
-
-        transition: all 100ms ease-out;
-    }
-
-    .toolCard button:hover {
-        background-color: #dddddd;
-
-        transition: all 100ms ease-in;
-    }
-
-    .toolCard button:active {
-        background-color: #cccccc;
-
-        transform: translate(0.25rem, 0.25rem);
-
-        box-shadow: 0rem 0rem #d4d4d4;
-
-        transition: all 100ms ease-out;
-    }
-
-    /* Sub - Other Divs */
-
-    .toolCard-image {
-        width: 90%;
-        height: auto;
-
-        margin-bottom: 2rem;
-
-        border-radius: 12px;
-    }

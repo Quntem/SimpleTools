@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="icon" href="global/images/logo.png" type="image/png">
-    <title>SimpleTools | Home</title>
+    <title>??????????? | Home</title>
 
-    <meta name="description" content="SimpleTools - A collection of simple tools by Quntem.">
-    <meta name="keywords" content="SimpleTools, tools, developer tools, web development, programming tools">
-    <meta name="author" content="SimpleTools">
+    <meta name="description" content="??????????? - A collection of simple tools by Quntem.">
+    <meta name="keywords" content="???????????, tools, developer tools, web development, programming tools">
+    <meta name="author" content="???????????">
     <meta name="robots" content="index, follow">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,26 +23,123 @@
 </head>
 <body>
     <div class="headContainer">
-        <img src="global/images/logo.png" alt="SimpleTools Logo" height="88" width="88">
+        <canvas id="canvas" height="88" width="88"></canvas>
         <div class="headContainer-title">
-            <h1>SimpleTools</h1>
-            <h2>Use a collection of simple tools by Quntem.</h2>
+            <h1 id="scrambleTitle">???????????</h1>
+            <h2 id="scrambleText">???????????????????????????????????????????</h2>
         </div>
     </div>
-    <div class="toolsContainer">
-        <div class="toolsContainer-iconContainer-PAS">
-            <img src="pixel-art-scaler/pixel scaler icon.png" alt="Pixel Art Scaler Icon" class="toolsContainer-icon" height="48" width="48">
-            <h2 class="pas-font pas-title">Pixel Art Scaler</h2>
-        </div>
 
-        <div class="toolCard">
-            <img src="global/images/pixel art scaler preview.png" alt="Screenshot of the Pixel Art Scaler tool." width="100%" height="auto" class="toolCard-image">
-            <p>
-                Easily scale your pixel art to ensure it looks sharp and vibrant on social media platforms!
-            </p>
-            <a href="pixel-art-scaler/index.html">
-                <button class="toolCard-button">Try it out</button>
-            </a>
-        </div>
-    </div>
+    <h2 class="countdown" id="countdown">Apr 27 - 18:00</h2>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:',.<>?/~`";
+
+        function randomChar() {
+            return characters[Math.floor(Math.random() * characters.length)];
+        }
+
+        function scrambleString(str) {
+            return str.split('').map(() => randomChar()).join('');
+        }
+
+        const h1 = document.getElementById('scrambleTitle');
+        const h2 = document.getElementById('scrambleText');
+        const originalTitle = h1.textContent;
+        const originalText = h2.textContent;
+
+        // Scramble text on load
+        h1.textContent = scrambleString(originalTitle);
+        h2.textContent = scrambleString(originalText);
+        document.title = h1.textContent + " | Home";
+
+        setInterval(() => {
+            h1.textContent = scrambleString(originalTitle);
+            h2.textContent = scrambleString(originalText);
+            document.title = h1.textContent + " | Home";
+        }, 1000);
+
+        const img = new Image();
+        img.src = 'global/images/logo.png';
+
+        img.onload = function () {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const chunkSize = 22;
+            const chunks = [];
+
+            for (let y = 0; y < canvas.height; y += chunkSize) {
+                for (let x = 0; x < canvas.width; x += chunkSize) {
+                    const w = Math.min(chunkSize, canvas.width - x);
+                    const h = Math.min(chunkSize, canvas.height - y);
+                    const imageData = ctx.getImageData(x, y, w, h);
+                    chunks.push({ w, h, imageData });
+                }
+            }
+
+            function scramble() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const shuffledChunks = shuffleArray(chunks);
+                shuffledChunks.forEach((chunk, i) => {
+                    const cols = Math.ceil(canvas.width / chunkSize);
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const dx = col * chunkSize;
+                    const dy = row * chunkSize;
+
+                    ctx.putImageData(chunk.imageData, dx, dy);
+                });
+
+                // Update favicon with the current canvas image
+                const favicon = document.getElementById('favicon');
+                if (favicon) {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    favicon.setAttribute('href', dataUrl);
+                }
+            }
+
+            scramble(); // scramble immediately
+            setInterval(scramble, 1000);
+        };
+
+        function shuffleArray(array) {
+            const shuffled = array.slice();
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // --- Countdown code with DAY:HR:MIN:SEC format ---
+        const countdownElement = document.getElementById('countdown');
+        const targetDate = new Date('2025-04-27T18:00:00'); // April 27, 2025 at 18:00
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                countdownElement.textContent = "ERR0R";
+                clearInterval(countdownTimer);
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // Format as DAY:HR:MIN:SEC with leading zeros if needed
+            countdownElement.textContent = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        updateCountdown(); // update immediately
+        const countdownTimer = setInterval(updateCountdown, 1000);
+    });
+</script>
