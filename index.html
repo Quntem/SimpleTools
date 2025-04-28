@@ -92,7 +92,7 @@
                     // Dynamic scaling between 0px and 480px
                     // At 480px -> 86 chars, at 0px -> smaller number (~30 chars)
                     const minChars = 0;
-                    const maxChars = 86;
+                    const maxChars = 64;
                     const width = Math.max(window.innerWidth, 1); // Prevent divide by zero
                     maxLength = Math.floor((width / 480) * (maxChars - minChars) + minChars);
                 }
